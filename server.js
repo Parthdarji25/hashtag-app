@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 const postRoutes = require("./routes/posts");
@@ -7,7 +8,7 @@ const PORT = 3000;
 
 // MongoDB connection (change if using Atlas)
 mongoose
-  .connect("mongodb://localhost:27017/hashtagApp", {
+  .connect(process.env.MONGODB_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -16,7 +17,8 @@ mongoose
 
 // Middleware
 app.use(express.json());
-app.use('/public', express.static('public'));
+// app.use('/public', express.static('public'));
+app.use(express.static("public"));
 app.use("/api/posts", postRoutes);
 
 app.listen(PORT, () => {
