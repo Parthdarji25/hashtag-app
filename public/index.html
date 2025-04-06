@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Saral Mandal Prasangs Hashtag App</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: #f5f7fa;
+        color: #333;
+        padding: 1rem;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      h1,
+      h2 {
+        color: #4f46e5;
+        text-align: center;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        padding: 0.75rem;
+        margin: 0.5rem 0;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 0.5rem;
+      }
+
+      button {
+        background-color: #4f46e5;
+        color: white;
+        padding: 0.75rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        margin-top: 0.5rem;
+        width: 100%;
+      }
+
+      button:hover {
+        background-color: #4338ca;
+      }
+
+      #results {
+        margin-top: 2rem;
+      }
+
+      #results h3 {
+        margin-bottom: 0.25rem;
+      }
+
+      #results p {
+        margin-top: 0;
+      }
+
+      hr {
+        border: none;
+        border-top: 1px solid #eee;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 1rem;
+        }
+        h1,
+        h2 {
+          font-size: 1.4rem;
+        }
+      }
+
+      .saralmandal {
+        color: rgb(206, 32, 32);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div style="text-align: center; margin-bottom: 1rem">
+        <img
+          src="https://hariprabodham.org.nz/wp-content/uploads/2024/06/logo-text@4x.png"
+          alt="Header Image"
+          style="width: 120px; max-width: 100%; height: auto"
+        />
+      </div>
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        "
+      >
+        <img
+          src="https://home.ydscanada.org/assets/img/parampara/05-Hariprasad-Swamiji-Maharaj.png"
+          alt="Left"
+          style="height: 100px; width: 100px; object-fit: contain"
+        />
+        <h2 class="saralmandal" style="margin: 0">Saral Mandal</h2>
+        <img
+          src="https://home.ydscanada.org/assets/img/parampara/06-Prabodh-Swamiji-Maharaj.png"
+          alt="Right"
+          style="height: 100px; width: 100px; object-fit: contain"
+        />
+      </div>
+      <h1>Create a Prasang Post</h1>
+      <input id="title" placeholder="Title" />
+      <textarea id="content" placeholder="Content"></textarea>
+      <input id="hashtags" placeholder="#tag1,#tag2" />
+      <button onclick="createPost()">Post</button>
+
+      <h2>Search Prasangs by Hashtag</h2>
+      <input id="searchTag" placeholder="#tag" />
+      <button onclick="searchByTag()">Search</button>
+
+      <div id="results"></div>
+    </div>
+
+    <script>
+      async function createPost() {
+        const title = document.getElementById("title").value.trim();
+        const content = document.getElementById("content").value.trim();
+        const hashtagsInput = document.getElementById("hashtags").value;
+
+        if (!title || !content || !hashtagsInput) {
+          alert("All fields are required.");
+          return;
+        }
+
+        const hashtags = hashtagsInput
+          .split(",")
+          .map((tag) => tag.trim().replace(/^#/, ""))
+          .filter(Boolean);
+
+        await fetch("/api/posts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, content, hashtags }),
+        });
+
+        alert("✅ Post created!");
+
+        // Clear fields
+        document.getElementById("title").value = "";
+        document.getElementById("content").value = "";
+        document.getElementById("hashtags").value = "";
+      }
+
+      async function searchByTag() {
+        const tag = document
+          .getElementById("searchTag")
+          .value.trim()
+          .replace(/^#/, "");
+
+        if (!tag) {
+          alert("Enter a hashtag to search.");
+          return;
+        }
+
+        const res = await fetch(`/api/posts/tag/${tag}`);
+        const posts = await res.json();
+        const output = posts
+          .map((p) => `<h3>${p.title}</h3><p>${p.content}</p><hr>`)
+          .join("");
+        document.getElementById("results").innerHTML =
+          output || "<p>No posts found.</p>";
+      }
+    </script>
+  </body>
+</html>
