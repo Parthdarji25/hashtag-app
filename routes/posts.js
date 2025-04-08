@@ -25,4 +25,15 @@ router.get("/tag/:tag", async (req, res) => {
   }
 });
 
+// Get all unique hashtags
+router.get("/tags", async (req, res) => {
+  try {
+    const tags = await Post.distinct("hashtags");
+    res.json(tags);
+  } catch (err) {
+    console.error(err); // Add this line to log any issues
+    res.status(500).send("Error fetching hashtags");
+  }
+});
+
 module.exports = router;

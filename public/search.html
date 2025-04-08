@@ -131,6 +131,10 @@
       .modal-content p {
         margin: 0;
       }
+
+      #tagList span:hover {
+        background: #c7d2fe;
+      }
     </style>
   </head>
   <body>
@@ -161,6 +165,16 @@
           style="height: 100px; width: 100px; object-fit: contain"
         />
       </div>
+      <div
+        id="tagList"
+        style="
+          margin-top: 1rem;
+          font-size: 0.85rem;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        "
+      ></div>
 
       <h1>Search Prasangs by Hashtag</h1>
       <input id="searchTag" placeholder="#tag" />
@@ -214,6 +228,32 @@
           showModal("An error occurred while fetching.");
         }
       }
+
+      async function fetchTags() {
+        try {
+          const res = await fetch("/api/posts/tags");
+          const tags = await res.json();
+
+          const tagList = document.getElementById("tagList");
+          tagList.innerHTML = tags
+            .map(
+              (tag) =>
+                `<span onclick="searchTagFromList('${tag}')" style="background:#e0e7ff;color:#3730a3;padding:0.25rem 0.5rem;border-radius:0.5rem;cursor:pointer;">#${tag}</span>`
+            )
+            .join("");
+        } catch (err) {
+          console.error("Error loading tags");
+        }
+      }
+
+      // Enable clicking on tag to search
+      function searchTagFromList(tag) {
+        document.getElementById("searchTag").value = `#${tag}`;
+        searchByTag();
+      }
+
+      // Fetch tags on page load
+      window.onload = fetchTags;
     </script>
   </body>
 </html>
