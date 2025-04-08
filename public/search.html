@@ -3,12 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Saral Mandal Prasangs Hashtag App</title>
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="https://i.playboard.app/p/AIf8zZSMHrmIINNdVeG26NrE0-jDAbn2H4hlSMvGWFS-6w/default.jpg"
-    />
+    <title>Search Prasangs | Saral Mandal</title>
     <style>
       * {
         box-sizing: border-box;
@@ -37,8 +32,7 @@
         text-align: center;
       }
 
-      input,
-      textarea {
+      input {
         width: 100%;
         padding: 0.75rem;
         margin: 0.5rem 0;
@@ -55,8 +49,8 @@
         border: none;
         border-radius: 0.5rem;
         cursor: pointer;
-        margin-top: 0.5rem;
         width: 100%;
+        margin-top: 0.5rem;
       }
 
       button:hover {
@@ -84,6 +78,7 @@
         .container {
           padding: 1rem;
         }
+
         h1,
         h2 {
           font-size: 1.4rem;
@@ -94,23 +89,12 @@
         color: rgb(206, 32, 32);
       }
 
-      .nav-link-button {
+      .nav-link {
         display: block;
         text-align: center;
-        margin-top: 1.5rem;
-        background-color: #e0e7ff;
+        margin-top: 1rem;
         color: #4f46e5;
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.2s ease;
-      }
-
-      .nav-link-button:hover {
-        background-color: #c7d2fe;
-        color: #3730a3;
-        transform: scale(1.02);
+        text-decoration: underline;
       }
 
       /* MODAL STYLES */
@@ -154,7 +138,7 @@
       <div style="text-align: center; margin-bottom: 1rem">
         <img
           src="https://hariprabodham.org.nz/wp-content/uploads/2024/06/logo-text@4x.png"
-          alt="Header Image"
+          alt="Header Logo"
           style="width: 120px; max-width: 100%; height: auto"
         />
       </div>
@@ -177,13 +161,14 @@
           style="height: 100px; width: 100px; object-fit: contain"
         />
       </div>
-      <h1>Post a Prasangs</h1>
-      <input id="title" placeholder="Title" />
-      <textarea id="content" placeholder="Content"></textarea>
-      <input id="hashtags" placeholder="#tag1,#tag2" />
-      <button onclick="createPost()">Post</button>
-      <a href="search.html" class="nav-link-button">🔍 Go to Search Page</a>
+
+      <h1>Search Prasangs by Hashtag</h1>
+      <input id="searchTag" placeholder="#tag" />
+      <button onclick="searchByTag()">Search</button>
+
       <div id="results"></div>
+
+      <a href="index.html" class="nav-link">← Back to Post Page</a>
     </div>
 
     <!-- Modal HTML -->
@@ -206,33 +191,28 @@
         }, 2000);
       }
 
-      async function createPost() {
-        const title = document.getElementById("title").value.trim();
-        const content = document.getElementById("content").value.trim();
-        const hashtagsInput = document.getElementById("hashtags").value;
+      async function searchByTag() {
+        const tag = document
+          .getElementById("searchTag")
+          .value.trim()
+          .replace(/^#/, "");
 
-        if (!title || !content || !hashtagsInput) {
-          showModal("Please fill all fields required.");
+        if (!tag) {
+          showModal("Enter a hashtag to search.");
           return;
         }
 
-        const hashtags = hashtagsInput
-          .split(",")
-          .map((tag) => tag.trim().replace(/^#/, ""))
-          .filter(Boolean);
-
-        await fetch("/api/posts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, content, hashtags }),
-        });
-
-        showModal("Post created!");
-
-        // Clear fields
-        document.getElementById("title").value = "";
-        document.getElementById("content").value = "";
-        document.getElementById("hashtags").value = "";
+        try {
+          const res = await fetch(`/api/posts/tag/${tag}`);
+          const posts = await res.json();
+          const output = posts
+            .map((p) => `<h3>${p.title}</h3><p>${p.content}</p><hr>`)
+            .join("");
+          document.getElementById("results").innerHTML =
+            output || (showModal("No posts found."), "");
+        } catch (err) {
+          showModal("An error occurred while fetching.");
+        }
       }
     </script>
   </body>
